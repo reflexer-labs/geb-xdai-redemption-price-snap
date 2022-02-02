@@ -13,7 +13,7 @@ contract XdaiRedemptionPriceSnap is BasicAMBInformationReceiver {
     bytes32 immutable public ethCallSelector;
 
     // event new snap
-    event UpdateSnappedPrice(uint redemptionPrice);
+    event UpdateSnappedRedemptionPrice(uint redemptionPrice);
 
     constructor(IHomeAMB _bridge, address _mainnetSnap) public AMBInformationReceiverStorage(_bridge) {
         mainnetRedemptionPriceSnap = _mainnetSnap;
@@ -27,7 +27,7 @@ contract XdaiRedemptionPriceSnap is BasicAMBInformationReceiver {
         _setStatus(messageId, Status.Pending);
     }
 
-    function _unwrap(bytes memory _result) internal returns(bytes memory unwrapped_response) {
+    function _unwrap(bytes memory _result) pure internal returns(bytes memory unwrapped_response) {
         unwrapped_response = abi.decode(_result, (bytes));
     }
 
@@ -35,6 +35,6 @@ contract XdaiRedemptionPriceSnap is BasicAMBInformationReceiver {
         bytes memory unwrapped = _unwrap(_result);
         require(unwrapped.length == 32, "invalid response");
         snappedRedemptionPrice = abi.decode(unwrapped, (uint256));
-        emit UpdateSnappedPrice(snappedRedemptionPrice);
+        emit UpdateSnappedRedemptionPrice(snappedRedemptionPrice);
     }
 }

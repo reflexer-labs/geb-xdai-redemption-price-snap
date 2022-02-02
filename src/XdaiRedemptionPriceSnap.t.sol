@@ -83,4 +83,12 @@ contract XdaiRedemptionPriceSnapTest is DSTest {
         bridge.fireCallback(true, abi.encode(abi.encode(price)));
         bridge.fireCallback(true, abi.encode(abi.encode(price)));
     }
+
+    function testFail_invalid_response_length() public {
+        bytes32 messageId = snap.requestSnappedPrice();
+
+        assertEq(uint(snap.status(messageId)), uint(Status.Pending));
+
+        bridge.fireCallback(true, abi.encode("0x1"));
+    }
 }
