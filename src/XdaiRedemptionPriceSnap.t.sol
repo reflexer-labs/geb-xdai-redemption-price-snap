@@ -75,8 +75,8 @@ contract XdaiRedemptionPriceSnapTest is DSTest {
         assertEq(uint(snap.status(messageId)), uint(Status.Failed));
     }
 
-    function testFail_callback_no_request(uint price) public {
-        bridge.fireCallback("non existend id", true, encodeUintBridgeResponse(price));
+    function testFail_callback_no_request(bytes32 messageId, uint price) public {
+        bridge.fireCallback(messageId, true, encodeUintBridgeResponse(price));
     }
 
     function testFail_callback_twice(uint price) public {
