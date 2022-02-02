@@ -6,7 +6,7 @@ import "./XdaiRedemptionPriceSnap.sol";
 
 contract Bridge {
     IAMBInformationReceiver requester;
-    uint requestCount;
+    uint public requestCount;
 
     function requireToGetInformation(bytes32 /* selector */, bytes memory /* data */) public returns (bytes32) {
         requester = IAMBInformationReceiver(msg.sender);
@@ -50,5 +50,37 @@ contract XdaiRedemptionPriceSnapTest is DSTest {
 
         assertEq(snap.snappedRedemptionPrice(), price);
         assertEq(uint(snap.status(messageId)), uint(Status.Ok));
+    }
+
+    function testFail_callback_not_from_bridge(uint price) public {
+        bytes32 messageId = snap.requestSnappedPrice();
+
+        assertEq(uint(snap.status(messageId)), uint(Status.Pending));
+
+        snap.onInformationReceived(keccak256(abi.encodePacked(bridge.requestCount())), true,  abi.encode(abi.encode(price)));
+    }
+
+    function test_request_callback_failed(uint price) public {
+        bytes32 messageId = snap.requestSnappedPrice();
+
+        assertEq(uint(snap.status(messageId)), uint(Status.Pending));
+
+        bridge.fireCallback(false, abi.encode(abi.encode(price)));
+
+        assertEq(snap.snappedRedemptionPrice(), 0);
+        assertEq(uint(snap.status(messageId)), uint(Status.Failed));
+    }
+
+    function testFail_callback_no_request(uint price) public {
+        bridge.fireCallback(true, abi.encode(abi.encode(price)));
+    }
+
+    function testFail_callback_twice(uint price) public {
+        bytes32 messageId = snap.requestSnappedPrice();
+
+        assertEq(uint(snap.status(messageId)), uint(Status.Pending));
+
+        bridge.fireCallback(true, abi.encode(abi.encode(price)));
+        bridge.fireCallback(true, abi.encode(abi.encode(price)));
     }
 }

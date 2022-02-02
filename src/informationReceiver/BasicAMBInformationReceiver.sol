@@ -9,7 +9,8 @@ abstract contract BasicAMBInformationReceiver is IAMBInformationReceiver, AMBInf
         bool _status,
         bytes calldata _result
     ) external override {
-        require(msg.sender == address(bridge));
+        require(msg.sender == address(bridge), "invalid caller");
+        require(status[_messageId] == Status.Pending, "invalid messageId");
         if (_status) {
             onResultReceived(_messageId, _result);
         }
